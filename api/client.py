@@ -33,8 +33,7 @@ class APIError(requests.exceptions.HTTPError):
 
 
 class RateLimitError(APIError):
-    def __init__(self, message, response):
-        super(RateLimitError, self).__init__(message, response=response)
+    pass
 
 
 class Client(requests.Session):
@@ -60,6 +59,9 @@ class Client(requests.Session):
             self._base + route,
             **kwargs
         )
+
+        if response.status_code == 429:
+            raise RateLimitError('Rate limit exceeded', response)
         try:
             response.raise_for_status()
         except requests.exceptions.HTTPError as e:
