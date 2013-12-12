@@ -19,7 +19,11 @@ class Dto(object):
 
     def __str__(self):
         shown_attributes = [x for x in self.__dict__.keys() if x[0] != '_']
-        s = 'League API Dto (' + ', '.join(shown_attributes) + ')'
+        s = 'League API {0} [{2}] ({1})'.format(
+            self.__class__.__name__,
+            ', '.join(shown_attributes),
+            self._region
+        )
         if len(s) > 128:
             s = s[:127] + '...)'
         return s
@@ -30,7 +34,10 @@ class Champion(Dto):
     def load_list(cls, free_to_play=False, region='na'):
         return [cls(x) for x in c.get_champions(free_to_play, region)['champions']]
 
-
+    def __str__(self):
+        return 'League API Champion [{2}] ({0}, {1})'.format(
+            self.id, self.name, self._region
+        )
 
 
 class Game(Dto):
@@ -43,6 +50,10 @@ class Game(Dto):
     def load_recent_games(cls, summoner_id, region='na'):
         return [cls(x, region) for x in c.get_recent_games(summoner_id, region)['games']]
 
+    def __str__(self):
+        return 'League API Game [{2}] ({0}, {1})'.format(
+            self.game_id, self.game_mode, self._region
+        )
 
 class Player(Dto):
     def get_summoner(self):
@@ -50,7 +61,10 @@ class Player(Dto):
 
 
 class RawStat(Dto):
-    pass
+    def __str__(self):
+        return 'League API RawStat ({0}, {1} = {2})'.format(
+            self.id, self.name, self.value
+        )
 
 
 class Summoner(Dto):
@@ -62,26 +76,40 @@ class Summoner(Dto):
     def load_summoner_by_name(cls, name, region='na'):
         return cls(c.get_summoner_by_name(name, region))
 
+    def __str__(self):
+        return 'League API Summoner [{2}] ({0}, {1})'.format(
+            self.id, self.name, self._region
+        )
+
 
 class League(Dto):
     def __init__(self, dct, region='na'):
         super(League, self).__init__(dct, region)
-        self.entries = [LeagueItem(x) for x in self.entries]
+        self.entries = [LeagueItem(x, region) for x in self.entries]
 
     @classmethod
     def load_summoner_leagues(cls, summoner_id, region='na'):
         leagues_map = c.get_summoner_leagues(summoner_id, region)
         for k, v in six.iteritems(leagues_map):
-            leagues_map[k] = cls(v)
+            leagues_map[k] = cls(v, region)
         return leagues_map
+
+    def __str__(self):
+        return 'League API League [{3}] ({0}, {1}, {2})'.format(
+            self.name, self.queue, self.tier, self._region
+        )
 
 
 class LeagueItem(Dto):
     def __init__(self, dct, region='na'):
         super(LeagueItem, self).__init__(dct, region)
         if self.mini_series:
-            self.mini_series = [MiniSeries(x) for x in self.mini_series]
+            self.mini_series = [MiniSeries(x, region) for x in self.mini_series]
 
+    def __str__(self):
+        return 'League API LeagueItem [{2}] ({0}, {1})'.format(
+            self.player_or_team_id, self.player_or_team_name, self._region
+        )
 
 class MiniSeries(Dto):
     pass
@@ -90,12 +118,14 @@ class MiniSeries(Dto):
 class PlayerStatsSummary(Dto):
     def __init__(self, dct, region='na'):
         super(PlayerStatsSummary, self).__init__(dct, region)
-        self.aggregated_stats = [AggregatedStat(x) for x in self.aggregated_stats]
+        self.aggregated_stats = [
+            AggregatedStat(x, region) for x in self.aggregated_stats
+        ]
 
     @classmethod
     def load_stats_summary(cls, summoner_id, season=None, region='na'):
         return [
-            cls(x) for x in c.get_stats_summary(
+            cls(x, region) for x in c.get_stats_summary(
                             summoner_id,
                             season,
                             region
@@ -104,13 +134,16 @@ class PlayerStatsSummary(Dto):
 
 
 class AggregatedStat(Dto):
-    pass
+    def __str__(self):
+        return 'League API AggregatedStat [{3}] ({0}, {1} = {2})'.format(
+            self.id, self.name, self.count, self._region
+        )
 
 
 class RankedStats(Dto):
     def __init__(self, dct, region='na'):
         super(RankedStats, self).__init__(dct, region)
-        self.champions = [ChampionStats(x) for x in self.champions]
+        self.champions = [ChampionStats(x, region) for x in self.champions]
 
     @classmethod
     def load_ranked_stats(cls, summoner_id, season=None, region='na'):
@@ -122,7 +155,7 @@ class RankedStats(Dto):
     def get_all_champion_stats(self):
         result = {}
         for stats in self.champions:
-            lst = [x for x in stats.stats]
+            lst = stats.stats
             result[stats.id] = lst
             result[stats.name] = lst
         return result
@@ -131,24 +164,32 @@ class RankedStats(Dto):
         result = [x for x in self.champions if x.id == champion_id]
         if len(result) == 0:
             return None
-        return [ChampionStat(x) for x in result[0].stats]
+        return result[0].stats
 
     def get_champion_stats_by_name(self, name):
         name = name.lower()
         result = [x for x in self.champions if x.name.lower() == name]
         if len(result) == 0:
             return None
-        return [ChampionStat(x) for x in result[0].stats]
+        return result[0].stats
 
 
 class ChampionStats(Dto):
     def __init__(self, dct, region='na'):
         super(ChampionStats, self).__init__(dct, region)
-        self.stats = [ChampionStat(x) for x in self.stats]
+        self.stats = [ChampionStat(x, region) for x in self.stats]
+
+    def __str__(self):
+        return 'League API ChampionStats [{2}] ({0}, {1})'.format(
+            self.id, self.name, self._region
+        )
 
 
 class ChampionStat(Dto):
-    pass
+    def __str__(self):
+        return 'League API ChampionStat ({0}, {1} = {2})'.format(
+            self.id, self.name, self.value
+        )
 
 
 class MasteryPage(Dto):
@@ -162,7 +203,10 @@ class MasteryPage(Dto):
 
 
 class Talent(Dto):
-    pass
+    def __str__(self):
+        return 'League API Talent ({0}, {1}, {2})'.format(
+            self.id, self.name, self.rank
+        )
 
 
 class RunePage(Dto):
@@ -184,7 +228,10 @@ class RuneSlot(Dto):
         self.rune = Rune(self.rune)
 
 class Rune(Dto):
-    pass
+    def __str__(self):
+        return 'League API Talent ({0}, {1}, {2})'.format(
+            self.id, self.name, self.tier
+        )
 
 
 class Team(Dto):
