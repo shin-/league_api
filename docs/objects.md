@@ -47,7 +47,7 @@ Instances represent a game Dto.
 * `fellow_players` attribute is populated with `Player` instances
 * `statistics` attribute is populated with `RawStat` instances
 
-
+------
     static objects.Game.load_recent_games(summoner_id, region='na')
 
 Retrieve a list of the most recent games for the given `summoner_id` in the
@@ -87,7 +87,7 @@ Instances represent a League Dto.
 
 * `entries` attribute is populated with `LeagueItem` instances
 
-
+-----
     static objects.load_summoner_leagues(summoner_id, region='na')
 
 Retrieve the leagues associated with the summoner identified by `summoner_id`
@@ -118,6 +118,7 @@ Instances represent a RankedStats Dto.
 
 * `champions` atribute is populated with `ChampionStats` instances
 
+------
     static objects.RankedStats.load_ranked_stats(summoner_id, season=None, region='na')
 
 Retrieve ranked stats for the given `summoner_id` in the given `region`.
@@ -157,6 +158,7 @@ Instances represent a MasteryPage Dto.
 
 * `talents` attribute is populated with `Talent` instances
 
+-------
     static objects.MasteryPage.load_summoner_masteries(summoner_id, region='na')
 
 Retrieve all mastery pages for the summoner identified by `summoner_id`
@@ -170,6 +172,7 @@ Instances represent a RunePage Dto.
 
 * `slots` attribute is populated with `RuneSlot` instances
 
+-------
     static objects.RunePage.load_rune_pages(summoner_id, region='na')
 
 Retrieve all rune pages for the summoner identified by `summoner_id`
@@ -191,7 +194,7 @@ Instances represent a Team Dto.
 
 * `match_history` attribute is populated with `MatchSummary` instances
 
-
+---------
     static objects.Team.load_summoner_teams(summoner_id, region='na')
 
 Retrieve all the teams of which `summoner_id` in the given `region` is a member.
@@ -204,7 +207,7 @@ Return a tuple containing
 * The version of the message
 * The message itself
 
-
+---------
     objects.Team#get_roster(self):
 
 Return a list of `TeamMemberInfo` instances for this team.
