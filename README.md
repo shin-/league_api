@@ -2,11 +2,9 @@
 
 League of Legends API - Python client
 
-[Documentation for the API can be found here](https://developer.riotgames.com/docs/getting-started)
-
-Documentation for this library can be found in the docs/ subfolder
-
-This project is published under the Apache 2 Public License.
+* [Documentation for the API can be found here](https://developer.riotgames.com/docs/getting-started)
+* Documentation for this library can be found in the docs/ subfolder
+* This project is published under the Apache 2 Public License.
 
 ## Disclaimer
 
